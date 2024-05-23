@@ -94,6 +94,17 @@ const App = () => {
     }
   }
 
+  const handleLike = async blog => {
+    try {
+      const liked = await blogService.like(blog)
+      setBlogs(blogs
+        .map(b => b.id === liked.id ? liked : b))
+      displayNotification(`Liked ${liked.title}`)
+    } catch (error) {
+      displayError(createErrorMessage(`Couldn't like blog ${blog.title}`, error))
+    }
+  }
+
   if (!user) {
     return (
       <div>
@@ -130,7 +141,11 @@ const App = () => {
         />
       </Togglable>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          handleLike={handleLike}
+        />
       )}
     </div>
   )
