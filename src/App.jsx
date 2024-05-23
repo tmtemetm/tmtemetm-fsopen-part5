@@ -2,19 +2,48 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
+import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
 const LOGGED_USER_KEY = 'logged_bloglist_user'
 
+const extractErrorMessage = error => error?.response?.data?.error
+
+const createErrorMessage = (message, error) => {
+  const errorMessage = extractErrorMessage(error)
+  if (errorMessage) {
+    return `${message}: ${errorMessage}`
+  }
+  return message
+}
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
+
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+
+  const [notification, setNotification] = useState(null)
+
+  const displayNotification = (message, isError) => {
+    if (notification) {
+      clearTimeout(notification.timer)
+    }
+    const timer = setTimeout(() => setNotification(null), 5000)
+    setNotification({
+      message,
+      isError: isError || false,
+      timer
+    })
+  }
+
+  const displayError = message => displayNotification(message, true)
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem(LOGGED_USER_KEY)
@@ -42,30 +71,38 @@ const App = () => {
       setUser(loginUser)
       setUsername('')
       setPassword('')
-    } catch (exception) {
-      console.log(exception)
+      displayNotification(`${loginUser.name} logged in successfully`)
+    } catch (error) {
+      displayError(createErrorMessage('Login failed', error))
     }
   }
 
   const handleLogout = () => {
     window.localStorage.removeItem(LOGGED_USER_KEY)
     blogService.clearToken()
+    displayNotification(`${user.name} logged out successfully`)
     setUser(null)
   }
 
   const createBlog = async event => {
     event.preventDefault()
-    const blog = await blogService.create({ title, author, url })
-    setBlogs(blogs.concat(blog))
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+    try {
+      const blog = await blogService.create({ title, author, url })
+      setBlogs(blogs.concat(blog))
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+      displayNotification(`A new blog '${blog.title}'${blog.author ? ' by ' + blog.author : ''} added`)
+    } catch (error) {
+      displayError(createErrorMessage(`Couldn't create blog ${title}`, error))
+    }
   }
 
   if (!user) {
     return (
       <div>
         <h2>Login to application</h2>
+        <Notification notification={notification} />
         <LoginForm
           username={username}
           password={password}
@@ -80,6 +117,7 @@ const App = () => {
   return (
     <div>
       <h2>Blogs</h2>
+      <Notification notification={notification} />
       <p>
         {user.name} logged in&nbsp;
         <button onClick={handleLogout}>
