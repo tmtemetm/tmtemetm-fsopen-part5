@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -30,6 +31,8 @@ const App = () => {
   const [url, setUrl] = useState('')
 
   const [notification, setNotification] = useState(null)
+
+  const blogFormRef = useRef()
 
   const displayNotification = (message, isError) => {
     if (notification) {
@@ -92,6 +95,7 @@ const App = () => {
       setTitle('')
       setAuthor('')
       setUrl('')
+      blogFormRef.current.toggleVisibility()
       displayNotification(`A new blog '${blog.title}'${blog.author ? ' by ' + blog.author : ''} added`)
     } catch (error) {
       displayError(createErrorMessage(`Couldn't create blog ${title}`, error))
@@ -124,16 +128,21 @@ const App = () => {
           Logout
         </button>
       </p>
-      <h3>Create new</h3>
-      <BlogForm
-        title={title}
-        author={author}
-        url={url}
-        handleTitleChange={({ target }) => setTitle(target.value)}
-        handleAuthorChange={({ target }) => setAuthor(target.value)}
-        handleUrlChange={({ target }) => setUrl(target.value)}
-        handleSubmit={createBlog}
-      />
+      <Togglable
+        buttonLabel="Create new blog"
+        ref={blogFormRef}
+      >
+        <h3>Create new</h3>
+        <BlogForm
+          title={title}
+          author={author}
+          url={url}
+          handleTitleChange={({ target }) => setTitle(target.value)}
+          handleAuthorChange={({ target }) => setAuthor(target.value)}
+          handleUrlChange={({ target }) => setUrl(target.value)}
+          handleSubmit={createBlog}
+        />
+      </Togglable>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
