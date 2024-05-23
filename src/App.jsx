@@ -21,11 +21,7 @@ const createErrorMessage = (message, error) => {
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-
   const [user, setUser] = useState(null)
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-
   const [notification, setNotification] = useState(null)
 
   const blogFormRef = useRef()
@@ -59,17 +55,14 @@ const App = () => {
     )
   }, [])
 
-  const handleLogin = async event => {
-    event.preventDefault()
+  const handleLogin = async credentials => {
     try {
-      const loginUser = await loginService.login(username, password)
+      const loginUser = await loginService.login(credentials)
       window.localStorage.setItem(
         LOGGED_USER_KEY, JSON.stringify(loginUser)
       )
       blogService.setToken(loginUser.token)
       setUser(loginUser)
-      setUsername('')
-      setPassword('')
       displayNotification(`${loginUser.name} logged in successfully`)
     } catch (error) {
       displayError(createErrorMessage('Login failed', error))
@@ -122,11 +115,7 @@ const App = () => {
         <h2>Login to application</h2>
         <Notification notification={notification} />
         <LoginForm
-          username={username}
-          password={password}
-          handleUsernameChange={({ target }) => setUsername(target.value)}
-          handlePasswordChange={({ target }) => setPassword(target.value)}
-          handleSubmit={handleLogin}
+          handleLogin={handleLogin}
         />
       </div>
     )
