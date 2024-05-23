@@ -19,7 +19,7 @@ const Blog = ({ blog, handleLike }) => {
   return (
     <div className="blog-list-item">
       <div>
-        {blog.title}&nbsp;
+        {blog.title} {blog.author}&nbsp;
         <button onClick={toggleShowDetails}>Hide</button>
       </div>
       <div>{blog.url}</div>
@@ -27,7 +27,7 @@ const Blog = ({ blog, handleLike }) => {
         Likes: {blog.likes}&nbsp;
         <button onClick={() => handleLike(blog)}>Like</button>
       </div>
-      <div>{blog.author}</div>
+      <div>{blog.user.name}</div>
     </div>
   )
 }
