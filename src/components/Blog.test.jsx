@@ -54,4 +54,26 @@ describe('<Blog />', () => {
     screen.getByText('1337', { exact: false })
     screen.getByText('User 123', { exact: false })
   })
+
+  test('like handler called twice when like button clicked twice', async () => {
+    const mockHandler = vi.fn()
+    render(
+      <Blog
+        blog={testBlog}
+        user={testUser}
+        likeBlog={mockHandler}
+        deleteBlog={() => {}}
+      />
+    )
+
+    const user = userEvent.setup()
+    const viewButton = screen.getByText('View')
+    await user.click(viewButton)
+
+    const likeButton = screen.getByText('Like')
+    await user.click(likeButton)
+    await user.click(likeButton)
+
+    expect(mockHandler.mock.calls).toHaveLength(2)
+  })
 })
