@@ -26,10 +26,6 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-
   const [notification, setNotification] = useState(null)
 
   const blogFormRef = useRef()
@@ -87,18 +83,14 @@ const App = () => {
     setUser(null)
   }
 
-  const createBlog = async event => {
-    event.preventDefault()
+  const createBlog = async blog => {
     try {
-      const blog = await blogService.create({ title, author, url })
-      setBlogs(blogs.concat(blog))
-      setTitle('')
-      setAuthor('')
-      setUrl('')
+      const created = await blogService.create(blog)
+      setBlogs(blogs.concat(created))
       blogFormRef.current.toggleVisibility()
-      displayNotification(`A new blog '${blog.title}'${blog.author ? ' by ' + blog.author : ''} added`)
+      displayNotification(`A new blog '${created.title}'${created.author ? ' by ' + created.author : ''} added`)
     } catch (error) {
-      displayError(createErrorMessage(`Couldn't create blog ${title}`, error))
+      displayError(createErrorMessage(`Couldn't create blog ${blog.title}`, error))
     }
   }
 
@@ -134,13 +126,7 @@ const App = () => {
       >
         <h3>Create new</h3>
         <BlogForm
-          title={title}
-          author={author}
-          url={url}
-          handleTitleChange={({ target }) => setTitle(target.value)}
-          handleAuthorChange={({ target }) => setAuthor(target.value)}
-          handleUrlChange={({ target }) => setUrl(target.value)}
-          handleSubmit={createBlog}
+          createBlog={createBlog}
         />
       </Togglable>
       {blogs.map(blog =>
