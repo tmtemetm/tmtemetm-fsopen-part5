@@ -94,7 +94,7 @@ const App = () => {
     }
   }
 
-  const handleLike = async blog => {
+  const likeBlog = async blog => {
     try {
       const liked = await blogService.like(blog)
       setBlogs(blogs
@@ -102,6 +102,17 @@ const App = () => {
       displayNotification(`Liked ${liked.title}`)
     } catch (error) {
       displayError(createErrorMessage(`Couldn't like blog ${blog.title}`, error))
+    }
+  }
+
+  const deleteBlog = async blog => {
+    try {
+      await blogService.deleteBlog(blog)
+      setBlogs(blogs
+        .filter(b => b.id !== blog.id))
+      displayNotification(`Deleted ${blog.title}`)
+    } catch (error) {
+      displayError(createErrorMessage(`Couldn't delete blog ${blog.title}`, error))
     }
   }
 
@@ -147,7 +158,8 @@ const App = () => {
         <Blog
           key={blog.id}
           blog={blog}
-          handleLike={handleLike}
+          likeBlog={likeBlog}
+          deleteBlog={deleteBlog}
         />
       )}
     </div>

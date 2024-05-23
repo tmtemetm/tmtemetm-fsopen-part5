@@ -31,10 +31,14 @@ const like = async blog => {
   return response.data
 }
 
+const deleteBlog = async blog =>
+  await axios.delete(`${baseUrl}/${blog.id}`, getConfig())
+
 export default {
   setToken,
   clearToken,
   getAll,
   create,
-  like
+  like,
+  deleteBlog
 }
