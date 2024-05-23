@@ -8,6 +8,10 @@ const setToken = newToken => {
   console.log('Set token', token)
 }
 
+const clearToken = () => {
+  token = null
+}
+
 const getAll = () => {
   const request = axios.get(baseUrl)
   return request.then(response => response.data)
@@ -15,5 +19,6 @@ const getAll = () => {
 
 export default {
   setToken,
+  clearToken,
   getAll
 }
